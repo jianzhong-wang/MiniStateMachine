@@ -1,5 +1,5 @@
 ﻿//------------------------------------------------------------------------------
-// MiniStateMachine 狀態機
+// 狀態機
 // 組織：國立東華大學 / Organization: National Dong Hwa University
 // 作者：王建中 / Author: Wang, Jian-Zhong
 //------------------------------------------------------------------------------
@@ -12,9 +12,9 @@ using System.Linq;
 namespace MiniStateMachine
 {
     /// <summary>
-    /// MiniStateMachine 狀態機
+    /// 狀態機
     /// </summary>
-    public class MiniStateMachine
+    public class StateMachine
     {
         /// <summary>
         /// 狀態機顯示名稱
@@ -50,7 +50,7 @@ namespace MiniStateMachine
         /// <paramref name="states"/> 為 null
         /// </exception>
         /// <exception cref="DuplicatedKeyException">識別鍵重複例外</exception>
-        public MiniStateMachine SetStates(IEnumerable<State> states)
+        public StateMachine SetStates(IEnumerable<State> states)
         {
             if (states == null)
             {
@@ -93,7 +93,7 @@ namespace MiniStateMachine
         /// <exception cref="ArgumentException">
         /// 在狀態集合裡找不到 <paramref name="currentState"/>
         /// </exception>
-        public MiniStateMachine SetCurrentState(State currentState)
+        public StateMachine SetCurrentState(State currentState)
         {
             if (currentState is null)
             {
@@ -115,7 +115,7 @@ namespace MiniStateMachine
         /// </summary>
         /// <param name="stateKey">狀態識別項</param>
         /// <returns>狀態機實體</returns>
-        public MiniStateMachine SetCurrentStateByKey(string stateKey)
+        public StateMachine SetCurrentStateByKey(string stateKey)
         {
             var state = this._states.Single(s => s.Key == stateKey);
             return SetCurrentState(state);
@@ -125,7 +125,7 @@ namespace MiniStateMachine
         /// 建構 MiniStateMachine 實體
         /// </summary>
         /// <param name="states">狀態集合</param>
-        public MiniStateMachine(IEnumerable<State> states = null)
+        public StateMachine(IEnumerable<State> states = null)
         {
             SetStates(states ?? new List<State>());
         }
@@ -136,7 +136,7 @@ namespace MiniStateMachine
         /// <param name="initialState">啟始狀態</param>
         /// <param name="states">狀態集合</param>
         /// <param name="displayName">狀態機顯示名稱</param>
-        public MiniStateMachine(State initialState, IEnumerable<State> states, string displayName = null)
+        public StateMachine(State initialState, IEnumerable<State> states, string displayName = null)
         {
             SetStates(states)
                 .SetCurrentState(initialState);
@@ -149,7 +149,7 @@ namespace MiniStateMachine
         /// </summary>
         /// <param name="state">要加入的狀態物件</param>
         /// <returns>狀態集合所屬的狀態機物件</returns>
-        public MiniStateMachine AddState(State state)
+        public StateMachine AddState(State state)
         {
             if (this._states.Any(s => s.Key == state.Key))
             {
@@ -168,7 +168,7 @@ namespace MiniStateMachine
         /// <param name="state">要插入的狀態物件</param>
         /// <returns>狀態集合所屬的狀態機物件</returns>
         /// <exception cref="DuplicatedKeyException">識別鍵重複例外</exception>
-        public MiniStateMachine InsertState(int index, State state)
+        public StateMachine InsertState(int index, State state)
         {
             if (this._states.Any(s => s.Key == state.Key))
             {
@@ -186,7 +186,7 @@ namespace MiniStateMachine
         /// <param name="state">要移除的狀態物件</param>
         /// <param name="result">是否成功移除</param>
         /// <returns>狀態集合所屬的狀態機物件</returns>
-        public MiniStateMachine RemoveState(State state, out bool result)
+        public StateMachine RemoveState(State state, out bool result)
         {
             result = this._states.Remove(state);
 
@@ -198,7 +198,7 @@ namespace MiniStateMachine
         /// </summary>
         /// <param name="state">要移除的狀態物件</param>
         /// <returns>狀態集合所屬的狀態機物件</returns>
-        public MiniStateMachine RemoveState(State state)
+        public StateMachine RemoveState(State state)
         {
             return RemoveState(state, out bool _);
         }
@@ -209,7 +209,7 @@ namespace MiniStateMachine
         /// <param name="stateKey">要移除的狀態之識別鍵</param>
         /// <param name="result">是否成功移除</param>
         /// <returns>狀態集合所屬的狀態機物件</returns>
-        public MiniStateMachine RemoveStateByKey(string stateKey, out bool result)
+        public StateMachine RemoveStateByKey(string stateKey, out bool result)
         {
             var state = this._states.SingleOrDefault(s => s.Key == stateKey);
 
@@ -227,7 +227,7 @@ namespace MiniStateMachine
         /// </summary>
         /// <param name="stateKey">要移除的狀態之識別鍵</param>
         /// <returns>狀態集合所屬的狀態機物件</returns>
-        public MiniStateMachine RemoveStateByKey(string stateKey)
+        public StateMachine RemoveStateByKey(string stateKey)
         {
             return RemoveStateByKey(stateKey, out bool _);
         }
@@ -237,7 +237,7 @@ namespace MiniStateMachine
         /// </summary>
         /// <param name="index">指定索引位置</param>
         /// <returns>狀態集合所屬的狀態機物件</returns>
-        public MiniStateMachine RemoveStateAt(int index)
+        public StateMachine RemoveStateAt(int index)
         {
             this._states.RemoveAt(index);
 
@@ -248,7 +248,7 @@ namespace MiniStateMachine
         /// 從狀態集合中移除所有項目
         /// </summary>
         /// <returns>狀態集合所屬的狀態機物件</returns>
-        public MiniStateMachine ClearTransitions()
+        public StateMachine ClearTransitions()
         {
             this._states.Clear();
 
