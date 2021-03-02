@@ -6,12 +6,12 @@ using System.Runtime.InteropServices;
 // 控制。變更這些屬性值可修改與組件關聯的
 // 資訊。
 [assembly: AssemblyTitle("Demo.Web")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Demo.Web")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("HP Inc.")]
+[assembly: AssemblyCompany("國立東華大學 National Dong Hwa University")]
 [assembly: AssemblyProduct("Demo.Web")]
-[assembly: AssemblyCopyright("Copyright © HP Inc. 2021")]
-[assembly: AssemblyTrademark("")]
+[assembly: AssemblyCopyright("Wang, Jian-Zhong")]
+[assembly: AssemblyTrademark("jzwang")]
 [assembly: AssemblyCulture("")]
 
 // 將 ComVisible 設定為 false 會使得這個組件中的型別 

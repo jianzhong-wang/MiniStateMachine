@@ -5,13 +5,13 @@ using System.Runtime.InteropServices;
 // 組件的一般資訊是由下列的屬性集控制。
 // 變更這些屬性的值即可修改組件的相關
 // 資訊。
-[assembly: AssemblyTitle("MiniStateMachine")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("MiniStateMachine 狀態機")]
+[assembly: AssemblyDescription("一個用 C# 實作的簡單狀態機")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("HP Inc.")]
+[assembly: AssemblyCompany("國立東華大學 National Dong Hwa University")]
 [assembly: AssemblyProduct("MiniStateMachine")]
-[assembly: AssemblyCopyright("Copyright © HP Inc. 2021")]
-[assembly: AssemblyTrademark("")]
+[assembly: AssemblyCopyright("Wang, Jian-Zhong")]
+[assembly: AssemblyTrademark("jzwang")]
 [assembly: AssemblyCulture("")]
 
 // 將 ComVisible 設為 false 可對 COM 元件隱藏
