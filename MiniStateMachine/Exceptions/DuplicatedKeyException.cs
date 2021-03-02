@@ -30,9 +30,26 @@ namespace MiniStateMachine.Exceptions
             this.DuplicatedKey = duplicatedKey;
         }
 
+        /// <summary>
+        /// 建構 DuplicatedKeyException 實體
+        /// </summary>
         public DuplicatedKeyException() { }
+        /// <summary>
+        /// 建構 DuplicatedKeyException 實體
+        /// </summary>
+        /// <param name="message">錯誤訊息</param>
         public DuplicatedKeyException(string message) : base(message) { }
+        /// <summary>
+        /// 建構 DuplicatedKeyException 實體
+        /// </summary>
+        /// <param name="message">錯誤訊息</param>
+        /// <param name="inner">內部例外</param>
         public DuplicatedKeyException(string message, Exception inner) : base(message, inner) { }
+        /// <summary>
+        /// 建構 DuplicatedKeyException 實體
+        /// </summary>
+        /// <param name="info">SerializationInfo 物件</param>
+        /// <param name="context">StreamingContext 物件</param>
         protected DuplicatedKeyException(
           System.Runtime.Serialization.SerializationInfo info,
           System.Runtime.Serialization.StreamingContext context) : base(info, context) { }

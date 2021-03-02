@@ -45,9 +45,26 @@ namespace MiniStateMachine.Exceptions
             this.Transition = transition;
         }
 
+        /// <summary>
+        /// 建構 ChangeStateException 實體
+        /// </summary>
         public ChangeStateException() { }
+        /// <summary>
+        /// 建構 ChangeStateException 實體
+        /// </summary>
+        /// <param name="message">錯誤訊息</param>
         public ChangeStateException(string message) : base(message) { }
+        /// <summary>
+        /// 建構 ChangeStateException 實體
+        /// </summary>
+        /// <param name="message">錯誤訊息</param>
+        /// <param name="inner">內部例外</param>
         public ChangeStateException(string message, Exception inner) : base(message, inner) { }
+        /// <summary>
+        /// 建構 ChangeStateException 實體
+        /// </summary>
+        /// <param name="info">SerializationInfo 物件</param>
+        /// <param name="context">StreamingContext 物件</param>
         protected ChangeStateException(
           System.Runtime.Serialization.SerializationInfo info,
           System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
