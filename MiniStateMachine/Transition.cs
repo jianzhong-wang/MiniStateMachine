@@ -66,6 +66,15 @@ namespace MiniStateMachine
         }
 
         /// <summary>
+        /// 傳回代表目前物件的字串
+        /// </summary>
+        /// <returns>表示目前物件的字串</returns>
+        public override string ToString()
+        {
+            return $"Key: {Key}, DisplayName: {DisplayName}";
+        }
+
+        /// <summary>
         /// 設定移轉完成後的目的狀態
         /// </summary>
         /// <param name="toState">移轉完成後的目的狀態</param>

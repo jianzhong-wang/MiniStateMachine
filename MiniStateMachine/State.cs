@@ -142,13 +142,26 @@ namespace MiniStateMachine
             EnterAction onEnter = null, ExitAction onExit = null, bool isEndState = false)
         {
             this.Key = key;
-
-            SetTransitions(transitions);
-
             this.DisplayName = displayName;
             this.OnEnter = onEnter;
             this.OnExit = onExit;
             this.IsEndState = isEndState;
+
+            if (isEndState && transitions == null)
+            {
+                transitions = new List<Transition>();
+            }
+
+            SetTransitions(transitions);
+        }
+
+        /// <summary>
+        /// 傳回代表目前物件的字串
+        /// </summary>
+        /// <returns>表示目前物件的字串</returns>
+        public override string ToString()
+        {
+            return $"Key: {Key}, DisplayName: {DisplayName}";
         }
 
         /// <summary>
@@ -159,6 +172,9 @@ namespace MiniStateMachine
         /// <exception cref="ArgumentNullException">
         /// <paramref name="predicate"/> 為 null
         /// </exception>
+        /// <exception cref="Exception">
+        /// <p>測試函式條件下找不到狀態移轉物件</p>
+        /// </exception>
         public Transition FindTransition(Func<Transition, bool> predicate)
         {
             if (predicate == null)
@@ -166,7 +182,14 @@ namespace MiniStateMachine
                 throw new ArgumentNullException("predicate");
             }
 
-            return Transitions.FirstOrDefault(predicate);
+            var transition = Transitions.FirstOrDefault(predicate);
+
+            if (transition == null)
+            {
+                throw new Exception($"狀態「{ToString()}」找不到狀態移轉！");
+            }
+
+            return transition;
         }
 
         /// <summary>
@@ -174,9 +197,19 @@ namespace MiniStateMachine
         /// </summary>
         /// <param name="transitionKey">狀態移轉識別鍵</param>
         /// <returns>狀態移轉物件</returns>
+        /// <exception cref="Exception">
+        /// <p>以狀態移轉識別鍵找不到狀態移轉物件</p>
+        /// </exception>
         public Transition FindTransition(string transitionKey)
         {
-            return FindTransition(t => t.Key == transitionKey);
+            var transition = Transitions.FirstOrDefault(t => t.Key == transitionKey);
+
+            if (transition == null)
+            {
+                throw new Exception($"狀態「{ToString()}」找不到識別鍵為「{transitionKey}」的狀態移轉！");
+            }
+
+            return transition;
         }
 
         /// <summary>
