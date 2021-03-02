@@ -122,7 +122,7 @@ namespace MiniStateMachine
         }
 
         /// <summary>
-        /// 建構 MiniStateMachine 實體
+        /// 建構 StateMachine 實體
         /// </summary>
         /// <param name="states">狀態集合</param>
         public StateMachine(IEnumerable<State> states = null)
@@ -131,15 +131,29 @@ namespace MiniStateMachine
         }
 
         /// <summary>
-        /// 建構 MiniStateMachine 實體
+        /// 建構 StateMachine 實體
         /// </summary>
-        /// <param name="initialState">啟始狀態</param>
         /// <param name="states">狀態集合</param>
+        /// <param name="initialState">啟始狀態</param>
         /// <param name="displayName">狀態機顯示名稱</param>
-        public StateMachine(State initialState, IEnumerable<State> states, string displayName = null)
+        public StateMachine(IEnumerable<State> states, State initialState, string displayName = null)
         {
             SetStates(states)
                 .SetCurrentState(initialState);
+
+            this.DisplayName = displayName;
+        }
+
+        /// <summary>
+        /// 建構 StateMachine 實體
+        /// </summary>
+        /// <param name="states">狀態集合</param>
+        /// <param name="initialStateKey">啟始狀態識別鍵</param>
+        /// <param name="displayName">狀態機顯示名稱</param>
+        public StateMachine(IEnumerable<State> states, string initialStateKey, string displayName = null)
+        {
+            SetStates(states)
+                .SetCurrentStateByKey(initialStateKey);
 
             this.DisplayName = displayName;
         }
@@ -260,8 +274,16 @@ namespace MiniStateMachine
         /// </summary>
         /// <param name="predicate">用來測試每個項目是否符合條件的函式</param>
         /// <returns>狀態物件</returns>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="predicate"/> 為 null
+        /// </exception>
         public State FindState(Func<State, bool> predicate)
         {
+            if (predicate == null)
+            {
+                throw new ArgumentNullException("predicate");
+            }
+
             return this._states?.FirstOrDefault(predicate);
         }
 
@@ -285,6 +307,98 @@ namespace MiniStateMachine
         }
 
         /// <summary>
+        /// 取得所有的狀態移轉集合
+        /// </summary>
+        /// <param name="predicate">過濾條件測試函式</param>
+        /// <returns>所有的狀態移轉集合</returns>
+        public IEnumerable<Transition> GetTransitions(Func<Transition, bool> predicate = null)
+        {
+            var transitions = States.SelectMany(s => s.Transitions);
+
+            if (predicate != null)
+            {
+                transitions = transitions.Where(predicate);
+            }
+
+            return transitions;
+        }
+
+        /// <summary>
+        /// 從狀態尋找狀態移轉物件
+        /// </summary>
+        /// <param name="statePredicate">狀態測試函式</param>
+        /// <param name="transitionPredicate">狀態移轉測試函式</param>
+        /// <returns>狀態移轉物件</returns>
+        /// <exception cref="ArgumentNullException">
+        /// <p><paramref name="statePredicate"/> 為 null</p>
+        /// <p>- 或 -</p>
+        /// <p><paramref name="transitionPredicate"/> 為 null</p>
+        /// </exception>
+        public Transition FindTransitionFromState(Func<State, bool> statePredicate, Func<Transition, bool> transitionPredicate)
+        {
+            if (statePredicate == null)
+            {
+                throw new ArgumentNullException("statePredicate");
+            }
+
+            if (transitionPredicate == null)
+            {
+                throw new ArgumentNullException("transitionPredicate");
+            }
+
+            return FindState(statePredicate)?.FindTransition(transitionPredicate);
+        }
+
+        /// <summary>
+        /// 從狀態尋找狀態移轉物件
+        /// </summary>
+        /// <param name="stateKey">狀態識別鍵</param>
+        /// <param name="transitionPredicate">狀態移轉測試函式</param>
+        /// <returns>狀態移轉物件</returns>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="transitionPredicate"/> 為 null
+        /// </exception>
+        public Transition FindTransitionFromState(string stateKey, Func<Transition, bool> transitionPredicate)
+        {
+            if (transitionPredicate == null)
+            {
+                throw new ArgumentNullException("transitionPredicate");
+            }
+
+            return FindState(stateKey)?.FindTransition(transitionPredicate);
+        }
+
+        /// <summary>
+        /// 從狀態尋找狀態移轉物件
+        /// </summary>
+        /// <param name="statePredicate">狀態測試函式</param>
+        /// <param name="transitionKey">狀態移轉識別鍵</param>
+        /// <returns>狀態移轉物件</returns>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="statePredicate"/> 為 null
+        /// </exception>
+        public Transition FindTransitionFromState(Func<State, bool> statePredicate, string transitionKey)
+        {
+            if (statePredicate == null)
+            {
+                throw new ArgumentNullException("statePredicate");
+            }
+
+            return FindState(statePredicate)?.FindTransition(transitionKey);
+        }
+
+        /// <summary>
+        /// 從狀態尋找狀態移轉物件
+        /// </summary>
+        /// <param name="stateKey">狀態識別鍵</param>
+        /// <param name="transitionKey">狀態移轉識別鍵</param>
+        /// <returns>狀態移轉物件</returns>
+        public Transition FindTransitionFromState(string stateKey, string transitionKey)
+        {
+            return FindState(stateKey)?.FindTransition(transitionKey);
+        }
+
+        /// <summary>
         /// 取得目前狀態的狀態移轉集合
         /// </summary>
         /// <returns>目前狀態的狀態移轉集合</returns>
@@ -298,9 +412,17 @@ namespace MiniStateMachine
         /// </summary>
         /// <param name="predicate">用來測試每個項目是否符合條件的函式</param>
         /// <returns>狀態移轉物件</returns>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="predicate"/> 為 null
+        /// </exception>
         public Transition FindTransitionFromCurrentState(Func<Transition, bool> predicate)
         {
-            return GetCurrentTransitions()?.FirstOrDefault(predicate);
+            if (predicate == null)
+            {
+                throw new ArgumentNullException("predicate");
+            }
+
+            return GetCurrentState()?.FindTransition(predicate);
         }
 
         /// <summary>
@@ -310,7 +432,7 @@ namespace MiniStateMachine
         /// <returns>狀態移轉物件</returns>
         public Transition FindTransitionFromCurrentState(string transitionKey)
         {
-            return FindTransitionFromCurrentState(t => t.Key == transitionKey);
+            return GetCurrentState()?.FindTransition(transitionKey);
         }
 
         /// <summary>

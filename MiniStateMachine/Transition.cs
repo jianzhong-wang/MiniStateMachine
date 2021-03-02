@@ -64,5 +64,29 @@ namespace MiniStateMachine
             this.DisplayName = displayName;
             this.ExecutingAction = executingAction;
         }
+
+        /// <summary>
+        /// 設定移轉完成後的目的狀態
+        /// </summary>
+        /// <param name="toState">移轉完成後的目的狀態</param>
+        /// <returns>轉態移轉實體</returns>
+        public Transition SetToState(State toState)
+        {
+            this.ToState = toState;
+
+            return this;
+        }
+
+        /// <summary>
+        /// 設定執行移轉時的動作
+        /// </summary>
+        /// <param name="executingAction">執行移轉時的動作</param>
+        /// <returns>轉態移轉實體</returns>
+        public Transition SetExecutingAction(Action executingAction)
+        {
+            this.ExecutingAction = executingAction;
+
+            return this;
+        }
     }
 }

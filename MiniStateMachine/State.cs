@@ -135,8 +135,8 @@ namespace MiniStateMachine
         /// <param name="key">狀態識別鍵</param>
         /// <param name="transitions">狀態移轉集合</param>
         /// <param name="displayName">狀態顯示名稱</param>
-        /// <param name="entryAction">進入狀態時進行的動作</param>
-        /// <param name="exitAction">離開狀態時進行的動作</param>
+        /// <param name="onEnter">進入狀態時進行的動作</param>
+        /// <param name="onExit">離開狀態時進行的動作</param>
         /// <param name="isEndState">是否為結束狀態</param>
         public State(string key, IEnumerable<Transition> transitions = null, string displayName = null,
             EnterAction onEnter = null, ExitAction onExit = null, bool isEndState = false)
@@ -149,6 +149,34 @@ namespace MiniStateMachine
             this.OnEnter = onEnter;
             this.OnExit = onExit;
             this.IsEndState = isEndState;
+        }
+
+        /// <summary>
+        /// 尋找狀態移轉物件
+        /// </summary>
+        /// <param name="predicate">用來測試每個項目是否符合條件的函式</param>
+        /// <returns>狀態移轉物件</returns>
+        /// <exception cref="ArgumentNullException">
+        /// <paramref name="predicate"/> 為 null
+        /// </exception>
+        public Transition FindTransition(Func<Transition, bool> predicate)
+        {
+            if (predicate == null)
+            {
+                throw new ArgumentNullException("predicate");
+            }
+
+            return Transitions.FirstOrDefault(predicate);
+        }
+
+        /// <summary>
+        /// 以狀態移轉識別鍵尋找狀態移轉物件
+        /// </summary>
+        /// <param name="transitionKey">狀態移轉識別鍵</param>
+        /// <returns>狀態移轉物件</returns>
+        public Transition FindTransition(string transitionKey)
+        {
+            return FindTransition(t => t.Key == transitionKey);
         }
 
         /// <summary>
