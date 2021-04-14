@@ -16,6 +16,33 @@ namespace MiniStateMachine
     /// </summary>
     public class StateMachine
     {
+        /// <summary>
+        /// 錯誤碼
+        /// </summary>
+        public enum ErrorCode
+        {
+            /// <summary>
+            /// 沒有錯誤
+            /// </summary>
+            NoError,
+            /// <summary>
+            /// 狀態移轉為 null
+            /// </summary>
+            TransitionNull,
+            /// <summary>
+            /// 找不到狀態移轉
+            /// </summary>
+            TransitionNotFound,
+            /// <summary>
+            /// 狀態移轉不被允許
+            /// </summary>
+            TransitionNotAllowed,
+            /// <summary>
+            /// 找不到狀態
+            /// </summary>
+            StateNotFound
+        }
+
         private string _displayName;
         /// <summary>
         /// 狀態機顯示名稱
@@ -177,6 +204,31 @@ namespace MiniStateMachine
 
             this.DisplayName = displayName;
         }
+
+        /*/// <summary>
+        /// 載入狀態集合
+        /// </summary>
+        /// <param name="states">狀態集合</param>
+        /// <returns>狀態機實體</returns>
+        public StateMachine LoadStates(IEnumerable<State> states)
+        {
+            foreach (var state in states)
+            {
+                this.AddState(state);
+            }
+
+            return this;
+        }
+
+        public StateMachine SetupTransitions(IEnumerable<StateTransitionRelation> relations,
+            IEnumerable<Transition> transitions = null)
+        {
+            foreach(var relation in relations)
+            {
+                State state = FindState(relation.StateKey);
+
+            }
+        }*/
 
         /// <summary>
         /// 將狀態物件加入至狀態集合
@@ -351,7 +403,7 @@ namespace MiniStateMachine
         /// </summary>
         /// <param name="predicate">過濾條件測試函式</param>
         /// <returns>所有的狀態移轉集合</returns>
-        public IEnumerable<Transition> GetTransitions(Func<Transition, bool> predicate = null)
+        public IEnumerable<Transition> GetAllTransitions(Func<Transition, bool> predicate = null)
         {
             var transitions = States.SelectMany(s => s.Transitions);
 
@@ -528,27 +580,71 @@ namespace MiniStateMachine
         }
 
         /// <summary>
+        /// 取得錯誤訊息
+        /// </summary>
+        /// <param name="errorCode">錯誤碼</param>
+        /// <returns>錯誤訊息</returns>
+        public static string GetErrorMessage(ErrorCode errorCode)
+        {
+            switch (errorCode)
+            {
+                case ErrorCode.NoError:
+                    return string.Empty;
+                case ErrorCode.TransitionNull:
+                    return "狀態移轉不得為 null！";
+                case ErrorCode.TransitionNotFound:
+                    return "找不到狀態移轉！";
+                case ErrorCode.TransitionNotAllowed:
+                    return "狀態移轉不被允許！";
+                case ErrorCode.StateNotFound:
+                    return "找不到狀態！";
+                default:
+                    return $"發生錯誤碼為「{(int)errorCode}({errorCode})」的錯誤！";
+            }
+        }
+
+        /// <summary>
         /// 測試是否可以執行狀態移轉
         /// </summary>
         /// <param name="transition">嘗試要執行的狀態移轉</param>
-        /// <param name="errorMessage">錯誤訊息</param>
+        /// <param name="errorCode">錯誤碼</param>
         /// <returns>是否可以執行狀態移轉</returns>
-        public virtual bool CanExecuteTransition(Transition transition, out string errorMessage)
+        public virtual bool CanExecuteTransition(Transition transition, out ErrorCode errorCode)
         {
-            errorMessage = "";
+            errorCode = ErrorCode.NoError;
 
             if (transition == null)
             {
-                errorMessage = "嘗試要執行的狀態移轉不得為 null！";
+                errorCode = ErrorCode.TransitionNull;
                 return false;
             }
 
             if (!(GetCurrentTransitions()?.Contains(transition) ?? false))
             {
-                errorMessage = "目前狀態的狀態移轉集合找不到要嘗試進行的狀態移轉！";
+                errorCode = ErrorCode.TransitionNotFound;
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// 測試是否可以執行狀態移轉
+        /// </summary>
+        /// <param name="transitionKey">嘗試要執行的狀態移轉識別鍵</param>
+        /// <param name="errorCode">錯誤碼</param>
+        /// <returns>是否可以執行狀態移轉</returns>
+        public virtual bool CanExecuteTransition(string transitionKey, out ErrorCode errorCode)
+        {
+            errorCode = ErrorCode.NoError;
+
+            var transition = CurrentState.Transitions.FirstOrDefault(t => t.Key == transitionKey);
+            if (transition == null)
+            {
+                errorCode = ErrorCode.TransitionNotFound;
+                return false;
+            }
+
+            return CanExecuteTransition(transition, out errorCode);
         }
 
         /// <summary>
@@ -558,27 +654,7 @@ namespace MiniStateMachine
         /// <returns>是否可以執行狀態移轉</returns>
         public virtual bool CanExecuteTransition(Transition transition)
         {
-            return CanExecuteTransition(transition, out string _);
-        }
-
-        /// <summary>
-        /// 測試是否可以執行狀態移轉
-        /// </summary>
-        /// <param name="transitionKey">嘗試要執行的狀態移轉識別鍵</param>
-        /// <param name="errorMessage">錯誤訊息</param>
-        /// <returns>是否可以執行狀態移轉</returns>
-        public virtual bool CanExecuteTransition(string transitionKey, out string errorMessage)
-        {
-            errorMessage = "";
-
-            var transition = CurrentState.Transitions.FirstOrDefault(t => t.Key == transitionKey);
-            if (transition == null)
-            {
-                errorMessage = $"狀態「{CurrentState}」找不到識別鍵為「{transitionKey}」的狀態移轉！";
-                return false;
-            }
-
-            return CanExecuteTransition(transition, out errorMessage);
+            return CanExecuteTransition(transition, out ErrorCode _);
         }
 
         /// <summary>
@@ -588,7 +664,7 @@ namespace MiniStateMachine
         /// <returns>是否可以執行狀態移轉</returns>
         public virtual bool CanExecuteTransition(string transitionKey)
         {
-            return CanExecuteTransition(transitionKey, out string _);
+            return CanExecuteTransition(transitionKey, out ErrorCode _);
         }
 
         /// <summary>
@@ -620,7 +696,7 @@ namespace MiniStateMachine
         /// </summary>
         /// <param name="toState">目的狀態</param>
         /// <returns>目的狀態</returns>
-        public virtual State ChangeToState(State toState)
+        public virtual State GotoState(State toState)
         {
             var possibleToStateKeys = GetPossibleToStates().Select(s => s.Key);
 
@@ -639,50 +715,71 @@ namespace MiniStateMachine
         /// </summary>
         /// <param name="toStateKey">目的狀態識別鍵</param>
         /// <returns>目的狀態</returns>
-        public virtual State ChangeToState(string toStateKey)
+        public virtual State GotoState(string toStateKey)
         {
             var toState = FindState(toStateKey);
 
-            return ChangeToState(toState);
+            return GotoState(toState);
         }
 
-        public virtual bool CanCangeToState(State toState, out string errorMessage)
+        /// <summary>
+        /// 測試是否可以將目前狀態變更為目的狀態
+        /// </summary>
+        /// <param name="toState">目的狀態</param>
+        /// <param name="erroCode">錯誤碼</param>
+        /// <returns>是否可以將目前狀態變更為目的狀態</returns>
+        public virtual bool CanGotoState(State toState, out ErrorCode erroCode)
         {
-            errorMessage = "";
+            erroCode = ErrorCode.NoError;
 
             var possibleToStateKeys = GetPossibleToStates().Select(s => s.Key);
             if (!possibleToStateKeys.Contains(toState.Key))
             {
-                errorMessage = $"目前狀態「{CurrentState}」無法移轉至目的狀態「{toState}」！";
+                erroCode = ErrorCode.TransitionNotAllowed;
                 return false;
             }
 
             return true;
         }
 
-        public virtual bool CanCangeToState(State toState)
+        /// <summary>
+        /// 測試是否可以將目前狀態變更為目的狀態
+        /// </summary>
+        /// <param name="toStateKey">目的狀態識別鍵</param>
+        /// <param name="errorCode">錯誤碼</param>
+        /// <returns>是否可以將目前狀態變更為目的狀態</returns>
+        public virtual bool CanGotoState(string toStateKey, out ErrorCode errorCode)
         {
-            return CanCangeToState(toState, out string _);
-        }
-
-        public virtual bool CanCangeToState(string toStateKey, out string errorMessage)
-        {
-            errorMessage = "";
+            errorCode = ErrorCode.NoError;
 
             var toState = States?.FirstOrDefault(s => s.Key == toStateKey);
             if (toState == null)
             {
-                errorMessage = $"狀態機「{DisplayName}」找不到識別鍵為「{toStateKey}」的狀態！";
+                errorCode = ErrorCode.StateNotFound;
                 return false;
             }
 
-
-            return CanCangeToState(toState, out errorMessage);
+            return CanGotoState(toState, out errorCode);
         }
 
-        public virtual bool CanCangeToState(string toStateKey)
+        /// <summary>
+        /// 測試是否可以將目前狀態變更為目的狀態
+        /// </summary>
+        /// <param name="toState">目的狀態</param>
+        /// <returns>是否可以將目前狀態變更為目的狀態</returns>
+        public virtual bool CanGotoState(State toState)
         {
-            return CanCangeToState(toStateKey, out string _);
+            return CanGotoState(toState, out ErrorCode _);
+        }
+
+        /// <summary>
+        /// 測試是否可以將目前狀態變更為目的狀態
+        /// </summary>
+        /// <param name="toStateKey">目的狀態識別鍵</param>
+        /// <returns>是否可以將目前狀態變更為目的狀態</returns>
+        public virtual bool CanGotoState(string toStateKey)
+        {
+            return CanGotoState(toStateKey, out ErrorCode _);
         }
     }
 }

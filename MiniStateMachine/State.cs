@@ -45,7 +45,7 @@ namespace MiniStateMachine
         /// 進入狀態
         /// </summary>
         /// <param name="fromState">來源狀態</param>
-        public virtual void Enter(State fromState)
+        internal virtual void Enter(State fromState)
         {
             if (this.OnEnter != null)
             {
@@ -67,7 +67,7 @@ namespace MiniStateMachine
         /// 離開狀態
         /// </summary>
         /// <param name="toState">目的狀態</param>
-        public virtual void Exit(State toState)
+        internal virtual void Exit(State toState)
         {
             if (this.OnExit != null)
             {
@@ -147,7 +147,7 @@ namespace MiniStateMachine
             this.OnExit = onExit;
             this.IsEndState = isEndState;
 
-            if (isEndState && transitions == null)
+            if (isEndState || transitions == null)
             {
                 transitions = new List<Transition>();
             }

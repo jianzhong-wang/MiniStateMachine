@@ -41,11 +41,11 @@ namespace MiniStateMachine
         /// <summary>
         /// 執行移轉
         /// </summary>
-        public virtual void Execute()
+        internal virtual void Execute()
         {
             if (this.ExecutingAction != null)
             {
-                this.ExecutingAction();
+                ExecutingAction();
             }
         }
 
